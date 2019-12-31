@@ -18,7 +18,6 @@
 
 (defun main (&key (part 2))
   (bind ((digits (digits (str:trim (read-file-into-string "input.txt")))))
-    (case part
+    (ccase part
       (1 (sum-matches digits))
-      (2 (sum-halfway-matches digits))
-      (otherwise (error "`part' must be 1 or 2")))))
+      (2 (sum-halfway-matches digits)))))
