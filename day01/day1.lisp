@@ -17,7 +17,9 @@
           :sum digit))
 
 (defun main (&key (part 2))
-  (bind ((digits (digits (str:trim (read-file-into-string "input.txt")))))
+  (bind ((digits (-> (read-file-into-string "input.txt")
+                     str:trim
+                     digits)))
     (ccase part
       (1 (sum-matches digits))
       (2 (sum-halfway-matches digits)))))
