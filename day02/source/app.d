@@ -4,15 +4,15 @@ import std.file : readText;
 import std.string : split, strip;
 import std.algorithm : map, maxElement, minElement, fold;
 
-void main() {
-	const input = readText("input.txt");
+void main() @safe {
+	immutable input = readText("input.txt");
 	writeln("Part 1: ", checksum(input));
 	writeln("Part 2: ", sumDivisibleValues(input));
 }
 
 private uint checksum(string input) pure @safe {
 	auto sum = 0;
-	const lines = input.strip.split('\n');
+	immutable lines = input.strip.split('\n');
 	foreach (line; lines) {
 		auto cells = line.split('\t').map!(to!uint);
 		sum += cells.maxElement - cells.minElement;
@@ -22,7 +22,7 @@ private uint checksum(string input) pure @safe {
 
 private uint sumDivisibleValues(string input) pure @safe {
 	auto sum = 0;
-	const lines = input.strip.split('\n');
+	immutable lines = input.strip.split('\n');
 	foreach (line; lines) {
 		auto cells = line.split('\t').map!(to!uint);
 		outer: foreach (a; cells) {
@@ -38,7 +38,7 @@ private uint sumDivisibleValues(string input) pure @safe {
 }
 
 unittest {
-	const input = "5	1	9	5
+	immutable input = "5	1	9	5
 7	5	3
 2	4	6	8
 ";
@@ -46,7 +46,7 @@ unittest {
 }
 
 unittest {
-	const input = "5	9	2	8
+	immutable input = "5	9	2	8
 9	4	7	3
 3	8	6	5
 ";
