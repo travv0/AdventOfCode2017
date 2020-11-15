@@ -1,10 +1,9 @@
 import std.stdio : writeln;
-import std.algorithm : sort, uniq, count, permutations, any, canFind;
+import std.algorithm : sort, uniq, count, isPermutation, any;
 import std.array : split, array;
 import std.range : walkLength;
 import std.file : readText;
 import std.string : strip;
-import std.conv : to;
 
 void main() @safe {
 	immutable input = readText("input.txt");
@@ -27,7 +26,7 @@ unittest {
 private bool hasAnagrams(string passphrase) @safe pure {
 	immutable words = passphrase.split(' ');
 	foreach (i, word; words) {
-		if (word.array.permutations.any!(p => words[i + 1 .. $].canFind(to!string(p))))
+		if (words[i + 1 .. $].any!(w => w.isPermutation(word)))
 			return true;
 	}
 	return false;
