@@ -6,7 +6,7 @@ import std.conv : to;
 import std.algorithm : map, find, filter, any, canFind, sum, sort, uniq, countUntil;
 import std.array : array;
 import std.file : readText;
-import std.range : walkLength;
+import std.range : walkLength, isRandomAccessRange;
 
 void main() @safe {
 	auto program = "input.txt".readText.parse;
@@ -35,7 +35,7 @@ private Program parse(string input) @safe {
 		programs ~= P(captures[1], to!uint(captures[2]), captures[4].split(", "));
 	}
 
-	P findRoot() @safe pure nothrow {
+	P findRoot() @safe @nogc pure nothrow {
 		auto potentials = programs.filter!(p => p.children.length != 0);
 		foreach (program; potentials) {
 			if (!potentials.any!(p => p.children.canFind(program.name))) {
@@ -53,16 +53,16 @@ private Program parse(string input) @safe {
 	return buildProgram(findRoot());
 }
 
-private uint calculateWeight(const Program program) @safe pure nothrow {
+private uint calculateWeight(const Program program) @safe pure nothrow @nogc {
 	return program.weight + program.children.map!calculateWeight.sum;
 }
 
-private uint correctedBadTowerWeight(const Program program) @safe pure {
-	uint correctedBadTowerWeight(const Program program, int offset) @safe pure {
+private uint correctedBadTowerWeight(const Program program) @safe pure @nogc nothrow {
+	uint correctedBadTowerWeight(const Program program, int offset) @safe pure @nogc nothrow {
 		auto weights = program.children.map!calculateWeight;
-		if (weights.array.sort.uniq.walkLength == 1)
+		if (weights.uniq.walkLength == 1)
 			return program.weight - offset;
-		auto badWeightPos = badWeightPosition(weights.array);
+		auto badWeightPos = badWeightPosition(weights);
 		auto badChild = program.children[badWeightPos],
 			goodChild = program.children[(badWeightPos + 1) % weights.length];
 		return correctedBadTowerWeight(badChild,
@@ -72,7 +72,8 @@ private uint correctedBadTowerWeight(const Program program) @safe pure {
 	return correctedBadTowerWeight(program, 0);
 }
 
-private long badWeightPosition(const uint[] weights) @safe pure @nogc nothrow {
+private long badWeightPosition(Range)(Range weights) @safe pure @nogc nothrow 
+		if (isRandomAccessRange!Range) {
 	assert(weights.length >= 3);
 	if (weights[0] == weights[1] || weights[0] == weights[2])
 		return weights.countUntil!(w => w != weights[0]);
