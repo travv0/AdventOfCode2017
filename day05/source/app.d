@@ -7,20 +7,21 @@ import std.file : readText;
 
 void main() @safe {
 	immutable instructions = readText("input.txt").parse;
-	writeln("Part 1: ", instructions.dup.countJumpsToEscape!1);
-	writeln("Part 2: ", instructions.dup.countJumpsToEscape!2);
+	writeln("Part 1: ", instructions.countJumpsToEscape!1);
+	writeln("Part 2: ", instructions.countJumpsToEscape!2);
 }
 
-private uint countJumpsToEscape(uint part)(int[] instructions) @safe pure nothrow @nogc
+private uint countJumpsToEscape(uint part)(const int[] instructions) @safe pure nothrow
 		if (part == 1 || part == 2) {
+	auto ins = instructions.dup;
 	auto i = 0;
 	auto jumps = 0;
-	while (i < instructions.length) {
-		immutable offset = instructions[i];
+	while (i < ins.length) {
+		immutable offset = ins[i];
 		if (part == 1 || offset < 3)
-			instructions[i]++;
+			ins[i]++;
 		else
-			instructions[i]--;
+			ins[i]--;
 		i += offset, jumps++;
 	}
 	return jumps;
