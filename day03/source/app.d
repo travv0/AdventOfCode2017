@@ -57,15 +57,14 @@ private T next(T)(T e) @safe pure nothrow @nogc if (is(T == enum)) {
 	return cast(T)((e + 1) % EnumMembers!T.length);
 }
 
-private immutable coordsToCheck = [
-	Coords(-1, -1), Coords(-1, 0), Coords(-1, 1), Coords(0, -1), Coords(0,
-			0), Coords(0, 1), Coords(1, -1), Coords(1, 0), Coords(1, 1)
-];
-
 private uint findGreaterThanInput(uint square) @safe pure nothrow {
 	uint[Coords] memory;
 
 	uint sumAdjacent(Coords coords) {
+		immutable coordsToCheck = [
+			Coords(-1, -1), Coords(-1, 0), Coords(-1, 1), Coords(0, -1),
+			Coords(0, 0), Coords(0, 1), Coords(1, -1), Coords(1, 0), Coords(1, 1)
+		];
 		return coordsToCheck.map!(a => coords + a in memory ? memory[coords + a] : 0).sum;
 	}
 
