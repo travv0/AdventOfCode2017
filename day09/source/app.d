@@ -30,26 +30,26 @@ private struct Tokenizer {
 		auto state = State.inGroup;
 		Token[] tokens;
 
-		tokenLoop: foreach (c; input) {
+		foreach (c; input) {
 			final switch (state) {
 			case State.inGroup:
 				switch (c) {
 				case '{':
 					tokens ~= Token.groupStart;
-					continue tokenLoop;
+					continue;
 
 				case '<':
 					state = State.inGarbage;
 					tokens ~= Token.garbage;
-					continue tokenLoop;
+					continue;
 
 				case '}':
 					tokens ~= Token.groupEnd;
-					continue tokenLoop;
+					continue;
 
 				case ',':
 					tokens ~= Token.comma;
-					continue tokenLoop;
+					continue;
 
 				default:
 					throw new Exception("Unexpected character in inGroup state: " ~ c);
@@ -59,20 +59,19 @@ private struct Tokenizer {
 				switch (c) {
 				case '!':
 					state = State.canceled;
-					continue tokenLoop;
+					continue;
 
 				case '>':
 					state = State.inGroup;
-					continue tokenLoop;
+					continue;
 
 				default:
 					garbageCount++;
-					continue tokenLoop;
+					continue;
 				}
 
 			case State.canceled:
 				state = State.inGarbage;
-				continue tokenLoop;
 			}
 		}
 
@@ -82,25 +81,26 @@ private struct Tokenizer {
 	}
 
 	unittest {
-		assert(tokenize("<>") == [Token.garbage, Token.eof]);
-		assert(tokenize("<random characters>") == [Token.garbage, Token.eof]);
-		assert(tokenize("<<<<>") == [Token.garbage, Token.eof]);
-		assert(tokenize("<{!>}>") == [Token.garbage, Token.eof]);
-		assert(tokenize("<!!>") == [Token.garbage, Token.eof]);
-		assert(tokenize("<!!!>>") == [Token.garbage, Token.eof]);
-		assert(tokenize("<{o\"i!a,<{i<a>") == [Token.garbage, Token.eof]);
+		Tokenizer tokenizer;
+		assert(tokenizer.tokenize("<>") == [Token.garbage, Token.eof]);
+		assert(tokenizer.tokenize("<random characters>") == [Token.garbage, Token.eof]);
+		assert(tokenizer.tokenize("<<<<>") == [Token.garbage, Token.eof]);
+		assert(tokenizer.tokenize("<{!>}>") == [Token.garbage, Token.eof]);
+		assert(tokenizer.tokenize("<!!>") == [Token.garbage, Token.eof]);
+		assert(tokenizer.tokenize("<!!!>>") == [Token.garbage, Token.eof]);
+		assert(tokenizer.tokenize("<{o\"i!a,<{i<a>") == [Token.garbage, Token.eof]);
 
-		assert(tokenize("{}") == [Token.groupStart, Token.groupEnd, Token.eof]);
-		assert(tokenize("{{{}}}") == [
+		assert(tokenizer.tokenize("{}") == [Token.groupStart, Token.groupEnd, Token.eof]);
+		assert(tokenizer.tokenize("{{{}}}") == [
 				Token.groupStart, Token.groupStart, Token.groupStart,
 				Token.groupEnd, Token.groupEnd, Token.groupEnd, Token.eof
 				]);
-		assert(tokenize("{<a>,<a>,<a>,<a>}") == [
+		assert(tokenizer.tokenize("{<a>,<a>,<a>,<a>}") == [
 				Token.groupStart, Token.garbage, Token.comma, Token.garbage,
 				Token.comma, Token.garbage, Token.comma, Token.garbage,
 				Token.groupEnd, Token.eof
 				]);
-		assert(tokenize("{{<!>},{<!>},{<!>},{<a>}}") == [
+		assert(tokenizer.tokenize("{{<!>},{<!>},{<!>},{<a>}}") == [
 				Token.groupStart, Token.groupStart, Token.garbage,
 				Token.groupEnd, Token.groupEnd, Token.eof
 				]);
@@ -129,12 +129,13 @@ private uint scoreGroups(const Token[] tokens) @safe pure {
 }
 
 unittest {
-	assert("{}".tokenize.scoreGroups == 1);
-	assert("{{{}}}".tokenize.scoreGroups == 6);
-	assert("{{},{}}".tokenize.scoreGroups == 5);
-	assert("{{{},{},{{}}}}".tokenize.scoreGroups == 16);
-	assert("{<a>,<a>,<a>,<a>}".tokenize.scoreGroups == 1);
-	assert("{{<ab>},{<ab>},{<ab>},{<ab>}}".tokenize.scoreGroups == 9);
-	assert("{{<!!>},{<!!>},{<!!>},{<!!>}}".tokenize.scoreGroups == 9);
-	assert("{{<a!>},{<a!>},{<a!>},{<ab>}}".tokenize.scoreGroups == 3);
+	Tokenizer tokenizer;
+	assert(tokenizer.tokenize("{}").scoreGroups == 1);
+	assert(tokenizer.tokenize("{{{}}}").scoreGroups == 6);
+	assert(tokenizer.tokenize("{{},{}}").scoreGroups == 5);
+	assert(tokenizer.tokenize("{{{},{},{{}}}}").scoreGroups == 16);
+	assert(tokenizer.tokenize("{<a>,<a>,<a>,<a>}").scoreGroups == 1);
+	assert(tokenizer.tokenize("{{<ab>},{<ab>},{<ab>},{<ab>}}").scoreGroups == 9);
+	assert(tokenizer.tokenize("{{<!!>},{<!!>},{<!!>},{<!!>}}").scoreGroups == 9);
+	assert(tokenizer.tokenize("{{<a!>},{<a!>},{<a!>},{<ab>}}").scoreGroups == 3);
 }
