@@ -83,14 +83,20 @@ private struct Tokenizer {
 	unittest {
 		Tokenizer tokenizer;
 		assert(tokenizer.tokenize("<>") == [Token.garbage, Token.eof]);
-		assert(tokenizer.tokenize("<random characters>") == [Token.garbage, Token.eof]);
+		assert(tokenizer.tokenize("<random characters>") == [
+				Token.garbage, Token.eof
+				]);
 		assert(tokenizer.tokenize("<<<<>") == [Token.garbage, Token.eof]);
 		assert(tokenizer.tokenize("<{!>}>") == [Token.garbage, Token.eof]);
 		assert(tokenizer.tokenize("<!!>") == [Token.garbage, Token.eof]);
 		assert(tokenizer.tokenize("<!!!>>") == [Token.garbage, Token.eof]);
-		assert(tokenizer.tokenize("<{o\"i!a,<{i<a>") == [Token.garbage, Token.eof]);
+		assert(tokenizer.tokenize("<{o\"i!a,<{i<a>") == [
+				Token.garbage, Token.eof
+				]);
 
-		assert(tokenizer.tokenize("{}") == [Token.groupStart, Token.groupEnd, Token.eof]);
+		assert(tokenizer.tokenize("{}") == [
+				Token.groupStart, Token.groupEnd, Token.eof
+				]);
 		assert(tokenizer.tokenize("{{{}}}") == [
 				Token.groupStart, Token.groupStart, Token.groupStart,
 				Token.groupEnd, Token.groupEnd, Token.groupEnd, Token.eof
