@@ -11,6 +11,9 @@ void main() {
 	writeln("Part 2: ", cpu.highestValue);
 }
 
+@safe:
+pure:
+
 private enum Dir {
 	inc,
 	dec,
@@ -29,7 +32,7 @@ private struct Instruction {
 	Cond cond;
 }
 
-private Instruction[] parse(string input)() @safe pure {
+private Instruction[] parse(string input)() {
 	immutable lines = input.split('\n');
 	Instruction[] r;
 	static foreach (line; lines) {
@@ -46,7 +49,7 @@ unittest {
 			]);
 }
 
-private Instruction parseLine(string line)() @safe pure {
+private Instruction parseLine(string line)() {
 	immutable parts = line.split(' ');
 	Cond cond = {register: parts[4], comp: parts[5], value: to!int(parts[6])};
 	return Instruction(parts[0], to!Dir(parts[1]), to!int(parts[2]), cond);

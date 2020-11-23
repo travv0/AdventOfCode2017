@@ -5,59 +5,18 @@ import std.range : empty;
 import std.array : array;
 import std.traits : EnumMembers;
 
-void main() @safe {
+@safe:
+
+void main() {
 	immutable input = 361527;
 	writeln("Part 1: ", getDistance(input));
 	writeln("Part 2: ", findGreaterThanInput(input));
 }
 
-uint getDistance(uint square) pure @safe nothrow {
-	if (square <= 1)
-		return 0;
+pure:
+nothrow:
 
-	auto step = 2, distanceFromCenter = 1, countAround = 0;
-	for (auto i = 2;; i += step) {
-		if (step % 2 != 0)
-			step++;
-
-		if (i + distanceFromCenter >= square)
-			return square - i + distanceFromCenter;
-
-		if (countAround == 3)
-			countAround = 0, step++, distanceFromCenter++;
-		else
-			countAround++;
-	}
-}
-
-unittest {
-	assert(getDistance(1) == 0);
-	assert(getDistance(12) == 3);
-	assert(getDistance(23) == 2);
-	assert(getDistance(1024) == 31);
-}
-
-private struct Coords {
-	int x;
-	int y;
-
-	Coords opBinary(string op)(Coords rhs) pure nothrow @nogc @safe {
-		return mixin("Coords(x " ~ op ~ " rhs.x, y " ~ op ~ " rhs.y)");
-	}
-}
-
-private enum Directions {
-	up,
-	left,
-	down,
-	right
-}
-
-private T next(T)(T e) @safe pure nothrow @nogc if (is(T == enum)) {
-	return cast(T)((e + 1) % EnumMembers!T.length);
-}
-
-private uint findGreaterThanInput(uint square) @safe pure nothrow {
+private uint findGreaterThanInput(uint square) {
 	uint[Coords] memory;
 
 	uint sumAdjacent(Coords coords) {
@@ -100,4 +59,52 @@ private uint findGreaterThanInput(uint square) @safe pure nothrow {
 	}
 	while (sum < square);
 	return sum;
+}
+
+@nogc:
+
+uint getDistance(uint square) {
+	if (square <= 1)
+		return 0;
+
+	auto step = 2, distanceFromCenter = 1, countAround = 0;
+	for (auto i = 2;; i += step) {
+		if (step % 2 != 0)
+			step++;
+
+		if (i + distanceFromCenter >= square)
+			return square - i + distanceFromCenter;
+
+		if (countAround == 3)
+			countAround = 0, step++, distanceFromCenter++;
+		else
+			countAround++;
+	}
+}
+
+unittest {
+	assert(getDistance(1) == 0);
+	assert(getDistance(12) == 3);
+	assert(getDistance(23) == 2);
+	assert(getDistance(1024) == 31);
+}
+
+private struct Coords {
+	int x;
+	int y;
+
+	Coords opBinary(string op)(Coords rhs) {
+		return mixin("Coords(x " ~ op ~ " rhs.x, y " ~ op ~ " rhs.y)");
+	}
+}
+
+private enum Directions {
+	up,
+	left,
+	down,
+	right
+}
+
+private T next(T)(T e) if (is(T == enum)) {
+	return cast(T)((e + 1) % EnumMembers!T.length);
 }

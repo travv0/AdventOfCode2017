@@ -5,14 +5,18 @@ import std.range : walkLength;
 import std.file : readText;
 import std.string : strip;
 
-void main() @safe {
+@safe:
+
+void main() {
 	immutable input = readText("input.txt");
 	immutable passphrases = input.strip.split('\n');
 	writeln("Part 1: ", passphrases.count!(p => !p.hasDupes));
 	writeln("Part 2: ", passphrases.count!(p => !p.hasAnagrams));
 }
 
-private bool hasDupes(string passphrase) @safe pure {
+pure:
+
+private bool hasDupes(string passphrase) {
 	auto words = passphrase.split(' ');
 	return words.length != words.sort.uniq.walkLength;
 }
@@ -23,7 +27,7 @@ unittest {
 	assert(!"aa bb cc dd aaa".hasDupes);
 }
 
-private bool hasAnagrams(string passphrase) @safe pure {
+private bool hasAnagrams(string passphrase) {
 	immutable words = passphrase.split(' ');
 	foreach (i, word; words) {
 		if (words[i + 1 .. $].any!(w => w.isPermutation(word)))

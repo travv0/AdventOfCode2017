@@ -2,12 +2,18 @@ import std.stdio : writeln;
 import std.file : readText;
 import std.string : strip;
 
-void main() @safe {
+@safe:
+
+void main() {
 	Tokenizer tokenizer;
 	const tokens = tokenizer.tokenize(readText("input.txt").strip);
 	writeln("Part 1: ", tokens.scoreGroups);
 	writeln("Part 2: ", tokenizer.garbageCount);
 }
+
+pure:
+nothrow:
+@nogc:
 
 private enum Token {
 	garbage,
@@ -26,7 +32,7 @@ private struct Tokenizer {
 		canceled,
 	}
 
-	private Token[] tokenize(string input) @safe pure {
+	private Token[] tokenize(string input) {
 		auto state = State.inGroup;
 		Token[] tokens;
 
@@ -113,7 +119,7 @@ private struct Tokenizer {
 	}
 }
 
-private uint scoreGroups(const Token[] tokens) @safe pure {
+private uint scoreGroups(const Token[] tokens) {
 	auto score = 0;
 	auto i = 1;
 	foreach (token; tokens) {

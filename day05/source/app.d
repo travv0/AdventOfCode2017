@@ -5,13 +5,23 @@ import std.conv : to;
 import std.algorithm : map;
 import std.file : readText;
 
-void main() @safe {
+@safe:
+
+void main() {
 	immutable instructions = readText("input.txt").parse;
 	writeln("Part 1: ", instructions.countJumpsToEscape!1);
 	writeln("Part 2: ", instructions.countJumpsToEscape!2);
 }
 
-private uint countJumpsToEscape(uint part)(const int[] instructions) @safe pure nothrow
+pure:
+
+private int[] parse(string input) {
+	return input.strip.split('\n').map!(line => line.strip.to!int).array;
+}
+
+nothrow:
+
+private uint countJumpsToEscape(uint part)(const int[] instructions)
 		if (part == 1 || part == 2) {
 	auto ins = instructions.dup;
 	auto i = 0;
@@ -25,10 +35,6 @@ private uint countJumpsToEscape(uint part)(const int[] instructions) @safe pure 
 		i += offset, jumps++;
 	}
 	return jumps;
-}
-
-private int[] parse(string input) @safe pure {
-	return input.strip.split('\n').map!(to!int).array;
 }
 
 unittest {

@@ -4,27 +4,31 @@ import std.file : readText;
 import std.string : split, strip;
 import std.algorithm : map, maxElement, minElement, fold;
 
-void main() @safe {
+@safe:
+
+void main() {
 	immutable input = readText("input.txt");
 	writeln("Part 1: ", checksum(input));
 	writeln("Part 2: ", sumDivisibleValues(input));
 }
 
-private uint checksum(string input) pure @safe {
+pure:
+
+private uint checksum(string input) {
 	auto sum = 0;
 	immutable lines = input.strip.split('\n');
 	foreach (line; lines) {
-		auto cells = line.split('\t').map!(to!uint);
+		auto cells = line.strip.split('\t').map!(to!uint);
 		sum += cells.maxElement - cells.minElement;
 	}
 	return sum;
 }
 
-private uint sumDivisibleValues(string input) pure @safe {
+private uint sumDivisibleValues(string input) {
 	auto sum = 0;
 	immutable lines = input.strip.split('\n');
 	foreach (line; lines) {
-		auto cells = line.split('\t').map!(to!uint);
+		auto cells = line.strip.split('\t').map!(to!uint);
 		outer: foreach (a; cells) {
 			foreach (b; cells) {
 				if (a != b && a % b == 0) {

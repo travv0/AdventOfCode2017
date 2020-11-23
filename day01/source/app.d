@@ -3,14 +3,17 @@ import std.conv : to;
 import std.file : readText;
 import std.string : strip;
 
-void main() @safe {
+@safe:
+
+void main() {
 	immutable input = readText("input.txt").strip;
 	writeln("Part 1: ", solveCaptcha!1(input));
 	writeln("Part 2: ", solveCaptcha!2(input));
 }
 
-private uint solveCaptcha(uint part)(string captcha) @safe pure 
-		if (part == 1 || part == 2) {
+pure:
+
+private uint solveCaptcha(uint part)(string captcha) if (part == 1 || part == 2) {
 	auto sum = 0;
 	immutable offset = part == 1 ? 1 : captcha.length / 2;
 	foreach (i, c; captcha) {

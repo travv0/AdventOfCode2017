@@ -6,7 +6,9 @@ import std.string : strip;
 import std.array : array;
 import std.file : readText;
 
-void main() @safe {
+@safe:
+
+void main() {
 	immutable banks = readText("input.txt").parse;
 	uint count;
 	long cycles;
@@ -15,11 +17,15 @@ void main() @safe {
 	writeln("Part 2: ", cycles);
 }
 
-private uint[] parse(string input) @safe pure {
+pure:
+
+private uint[] parse(string input) {
 	return input.strip.split('\t').map!(to!uint).array;
 }
 
-private uint[] redistribute(const uint[] banks) @safe pure nothrow {
+nothrow:
+
+private uint[] redistribute(const uint[] banks) {
 	auto bs = banks.dup;
 	immutable n = bs.maxIndex;
 	auto blocks = bs[n];
@@ -38,7 +44,7 @@ unittest {
 	assert(redistribute([3, 1, 2, 3]) == [0, 2, 3, 4]);
 }
 
-private void countCyclesUntilLoop(const uint[] banks, out uint count, out long cycles) @safe pure nothrow {
+private void countCyclesUntilLoop(const uint[] banks, out uint count, out long cycles) {
 	auto bs = banks.dup;
 	uint[][] seen;
 	count = 0;

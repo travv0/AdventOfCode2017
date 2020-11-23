@@ -8,19 +8,15 @@ import std.array : array;
 import std.file : readText;
 import std.range : walkLength, isRandomAccessRange;
 
-void main() @safe {
+@safe:
+
+void main() {
 	auto program = "input.txt".readText.parse;
 	writeln("Part 1: ", program.name);
 	writeln("Part 2: ", program.correctedBadTowerWeight);
 }
 
-private struct Program {
-	string name;
-	uint weight;
-	Program[] children;
-}
-
-private Program parse(string input) @safe {
+private Program parse(string input) {
 	struct P {
 		string name;
 		uint weight;
@@ -35,7 +31,7 @@ private Program parse(string input) @safe {
 		programs ~= P(captures[1], to!uint(captures[2]), captures[4].split(", "));
 	}
 
-	P findRoot() @safe @nogc pure nothrow {
+	P findRoot() {
 		auto potentials = programs.filter!(p => p.children.length != 0);
 		foreach (program; potentials) {
 			if (!potentials.any!(p => p.children.canFind(program.name))) {
@@ -45,7 +41,7 @@ private Program parse(string input) @safe {
 		assert(0);
 	}
 
-	Program buildProgram(const P root) @safe pure nothrow {
+	Program buildProgram(const P root) @safe {
 		auto children = root.children.map!(c => buildProgram(programs.find!(p => p.name == c)[0]));
 		return Program(root.name, root.weight, children.array);
 	}
@@ -53,12 +49,22 @@ private Program parse(string input) @safe {
 	return buildProgram(findRoot());
 }
 
-private uint calculateWeight(const Program program) @safe pure nothrow @nogc {
+pure:
+@nogc:
+nothrow:
+
+private struct Program {
+	string name;
+	uint weight;
+	Program[] children;
+}
+
+private uint calculateWeight(const Program program) {
 	return program.weight + program.children.map!calculateWeight.sum;
 }
 
-private uint correctedBadTowerWeight(const Program program) @safe pure @nogc nothrow {
-	uint correctedBadTowerWeight(const Program program, int offset) @safe pure @nogc nothrow {
+private uint correctedBadTowerWeight(const Program program) {
+	uint correctedBadTowerWeight(const Program program, int offset) {
 		auto weights = program.children.map!calculateWeight;
 		if (weights.uniq.walkLength == 1)
 			return program.weight - offset;
@@ -72,8 +78,7 @@ private uint correctedBadTowerWeight(const Program program) @safe pure @nogc not
 	return correctedBadTowerWeight(program, 0);
 }
 
-private long badWeightPosition(Range)(Range weights) @safe pure @nogc nothrow 
-		if (isRandomAccessRange!Range) {
+private long badWeightPosition(Range)(Range weights) if (isRandomAccessRange!Range) {
 	assert(weights.length >= 3);
 	if (weights[0] == weights[1] || weights[0] == weights[2])
 		return weights.countUntil!(w => w != weights[0]);
