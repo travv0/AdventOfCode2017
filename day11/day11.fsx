@@ -1,23 +1,60 @@
 open System.IO
 
-type Dirs =
+type Dir =
     | NW
     | N
     | NE
-    | SW
-    | S
     | SE
+    | S
+    | SW
 
-let parse (input: string) =
-    input.Trim().Split(',')
-    |> Seq.map (function
+    member dir.Clockwise() = dir.Clockwise(1)
+
+    member dir.Clockwise(n) =
+        let newDir =
+            match dir with
+            | NW -> N
+            | N -> NE
+            | NE -> SE
+            | SE -> S
+            | S -> SW
+            | SW -> NW
+
+        if n > 1 then
+            newDir.Clockwise(n - 1)
+        else
+            newDir
+
+    member dir.CounterClockwise() = dir.CounterClockwise(1)
+
+    member dir.CounterClockwise(n) =
+        let newDir =
+            match dir with
+            | SE -> NE
+            | S -> SE
+            | SW -> S
+            | NW -> SW
+            | N -> NW
+            | NE -> N
+
+        if n > 1 then
+            newDir.CounterClockwise(n - 1)
+        else
+            newDir
+
+    static member Parse =
+        function
         | "nw" -> NW
         | "n" -> N
         | "ne" -> NE
         | "sw" -> SW
         | "s" -> S
         | "se" -> SE
-        | s -> failwithf "bad parse: %s" s)
+        | s -> failwithf "bad parse: %s" s
+
+let parse (input: string) =
+    input.Trim().Split(',')
+    |> Seq.map Dir.Parse
     |> List.ofSeq
 
 module Array =
@@ -31,33 +68,11 @@ module Array =
 
 let reducePath path =
     List.fold
-        (fun (path, furthest) dir ->
+        (fun (path, furthest) (dir: Dir) ->
             let newPath =
-                match dir with
-                | NE ->
-                    Array.remove SW path
-                    |> Option.orElseWith (fun () -> Array.replace NW N path)
-                    |> Option.orElseWith (fun () -> Array.replace S SE path)
-                | SE ->
-                    Array.remove NW path
-                    |> Option.orElseWith (fun () -> Array.replace SW S path)
-                    |> Option.orElseWith (fun () -> Array.replace N NE path)
-                | NW ->
-                    Array.remove SE path
-                    |> Option.orElseWith (fun () -> Array.replace NE N path)
-                    |> Option.orElseWith (fun () -> Array.replace S SW path)
-                | SW ->
-                    Array.remove NE path
-                    |> Option.orElseWith (fun () -> Array.replace SE S path)
-                    |> Option.orElseWith (fun () -> Array.replace N NW path)
-                | N ->
-                    Array.remove S path
-                    |> Option.orElseWith (fun () -> Array.replace SW NW path)
-                    |> Option.orElseWith (fun () -> Array.replace SE NE path)
-                | S ->
-                    Array.remove N path
-                    |> Option.orElseWith (fun () -> Array.replace NW SW path)
-                    |> Option.orElseWith (fun () -> Array.replace NE SE path)
+                Array.remove (dir.Clockwise(3)) path
+                |> Option.orElseWith (fun () -> Array.replace (dir.Clockwise(2)) (dir.Clockwise(1)) path)
+                |> Option.orElseWith (fun () -> Array.replace (dir.CounterClockwise(2)) (dir.CounterClockwise(1)) path)
                 |> Option.defaultValue (Array.append path [| dir |])
 
             let newFurthest = Array.length newPath |> max furthest
