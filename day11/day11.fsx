@@ -20,65 +20,58 @@ let parse (input: string) =
         | s -> failwithf "bad parse: %s" s)
     |> List.ofSeq
 
-module List =
-    let remove elem l =
-        List.tryFindIndex ((=) elem) l
-        |> Option.bind (fun i ->
-            match List.splitAt i l with
-            | (beginning, _ :: ending) -> Some(beginning @ ending)
-            | _ -> None)
+module Array =
+    let remove elem a =
+        Array.tryFindIndex ((=) elem) a
+        |> Option.map (fun i -> Array.removeAt i a)
 
-    let replace elem with_ l =
-        List.tryFindIndex ((=) elem) l
-        |> Option.bind (fun i ->
-            match List.splitAt i l with
-            | (beginning, _ :: ending) -> Some(beginning @ with_ :: ending)
-            | _ -> None)
+    let replace elem with_ a =
+        Array.tryFindIndex ((=) elem) a
+        |> Option.map (fun i -> Array.updateAt i with_ a)
 
 let reducePath path =
-    (Array.ofList path, ([], 0))
-    ||> Array.foldBack (fun dir (path, furthest) ->
-        let newPath =
-            match dir with
-            | NE ->
-                List.remove SW path
-                |> Option.orElseWith (fun () -> List.replace NW N path)
-                |> Option.orElseWith (fun () -> List.replace S SE path)
-                |> Option.defaultValue (dir :: path)
-            | SE ->
-                List.remove NW path
-                |> Option.orElseWith (fun () -> List.replace SW S path)
-                |> Option.orElseWith (fun () -> List.replace N NE path)
-                |> Option.defaultValue (dir :: path)
-            | NW ->
-                List.remove SE path
-                |> Option.orElseWith (fun () -> List.replace NE N path)
-                |> Option.orElseWith (fun () -> List.replace S SW path)
-                |> Option.defaultValue (dir :: path)
-            | SW ->
-                List.remove NE path
-                |> Option.orElseWith (fun () -> List.replace SE S path)
-                |> Option.orElseWith (fun () -> List.replace N NW path)
-                |> Option.defaultValue (dir :: path)
-            | N ->
-                List.remove S path
-                |> Option.orElseWith (fun () -> List.replace SW NW path)
-                |> Option.orElseWith (fun () -> List.replace SE NE path)
-                |> Option.defaultValue (dir :: path)
-            | S ->
-                List.remove N path
-                |> Option.orElseWith (fun () -> List.replace NW SW path)
-                |> Option.orElseWith (fun () -> List.replace NE SE path)
-                |> Option.defaultValue (dir :: path)
+    List.fold
+        (fun (path, furthest) dir ->
+            let newPath =
+                match dir with
+                | NE ->
+                    Array.remove SW path
+                    |> Option.orElseWith (fun () -> Array.replace NW N path)
+                    |> Option.orElseWith (fun () -> Array.replace S SE path)
+                | SE ->
+                    Array.remove NW path
+                    |> Option.orElseWith (fun () -> Array.replace SW S path)
+                    |> Option.orElseWith (fun () -> Array.replace N NE path)
+                | NW ->
+                    Array.remove SE path
+                    |> Option.orElseWith (fun () -> Array.replace NE N path)
+                    |> Option.orElseWith (fun () -> Array.replace S SW path)
+                | SW ->
+                    Array.remove NE path
+                    |> Option.orElseWith (fun () -> Array.replace SE S path)
+                    |> Option.orElseWith (fun () -> Array.replace N NW path)
+                | N ->
+                    Array.remove S path
+                    |> Option.orElseWith (fun () -> Array.replace SW NW path)
+                    |> Option.orElseWith (fun () -> Array.replace SE NE path)
+                | S ->
+                    Array.remove N path
+                    |> Option.orElseWith (fun () -> Array.replace NW SW path)
+                    |> Option.orElseWith (fun () -> Array.replace NE SE path)
+                |> Option.defaultValue (Array.append path [| dir |])
 
-        let newFurthest = List.length newPath |> max furthest
-        (newPath, newFurthest))
+            let newFurthest = Array.length newPath |> max furthest
+            (newPath, newFurthest))
+        ([||], 0)
+        path
 
-let path = File.ReadAllText("input.txt") |> parse
-let (shortestPath, furthestDistance) = reducePath path
+let (path, furthestDistance) =
+    File.ReadAllText("input.txt")
+    |> parse
+    |> reducePath
 
-shortestPath
-|> List.length
+path
+|> Array.length
 |> printfn "The child process is %d steps away"
 
 printfn "The furthest he ever got from his starting position is %d steps" furthestDistance
