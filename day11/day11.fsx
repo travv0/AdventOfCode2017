@@ -73,7 +73,7 @@ let reducePath path =
                 Array.remove (dir.Clockwise(3)) path
                 |> Option.orElseWith (fun () -> Array.replace (dir.Clockwise(2)) (dir.Clockwise(1)) path)
                 |> Option.orElseWith (fun () -> Array.replace (dir.CounterClockwise(2)) (dir.CounterClockwise(1)) path)
-                |> Option.defaultValue (Array.append path [| dir |])
+                |> Option.defaultWith (fun () -> Array.append path [| dir |])
 
             let newFurthest = Array.length newPath |> max furthest
             (newPath, newFurthest))
