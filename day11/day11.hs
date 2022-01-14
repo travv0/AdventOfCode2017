@@ -1,3 +1,9 @@
+#!/usr/bin/env -S cabal run -v0
+{- cabal:
+build-depends: base, split 
+ghc-options: -Wall
+-}
+
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE Strict #-}
@@ -15,7 +21,7 @@ data Dir = NW | N | NE | SE | S | SW
 clockwise :: Dir -> Dir
 clockwise = clockwiseN 1
 
-clockwiseN :: (Eq a, Num a) => a -> Dir -> Dir
+clockwiseN :: Integer -> Dir -> Dir
 clockwiseN 0 dir = dir
 clockwiseN n dir = clockwiseN (n - 1) $ case dir of
     SW -> NW
@@ -24,7 +30,7 @@ clockwiseN n dir = clockwiseN (n - 1) $ case dir of
 counterClockwise :: Dir -> Dir
 counterClockwise = counterClockwiseN 1
 
-counterClockwiseN :: (Eq a, Num a) => a -> Dir -> Dir
+counterClockwiseN :: Integer -> Dir -> Dir
 counterClockwiseN 0 dir = dir
 counterClockwiseN n dir = counterClockwiseN (n - 1) $ case dir of
     NW -> SW
@@ -44,16 +50,16 @@ parse :: String -> [Dir]
 parse = map parseDir . List.splitOn "," . filter (not . Char.isSpace)
 
 replace :: forall a . Eq a => a -> a -> [a] -> Maybe [a]
-replace elem with l = update <$> List.elemIndex elem l
+replace x with xs = update <$> List.elemIndex x xs
   where
     update :: Int -> [a]
-    update i = let (beg, _ : end) = List.splitAt i l in beg <> (with : end)
+    update i = let (beg, _ : end) = List.splitAt i xs in beg <> (with : end)
 
 delete :: forall a . Eq a => a -> [a] -> Maybe [a]
-delete elem l = remove <$> List.elemIndex elem l
+delete x xs = remove <$> List.elemIndex x xs
   where
     remove :: Int -> [a]
-    remove i = let (beg, _ : end) = List.splitAt i l in beg <> end
+    remove i = let (beg, _ : end) = List.splitAt i xs in beg <> end
 
 reducePath :: [Dir] -> ([Dir], Int)
 reducePath = foldl'
@@ -62,9 +68,9 @@ reducePath = foldl'
             newPath =
                 Maybe.fromMaybe (path <> [dir])
                     $   delete (clockwiseN 3 dir) path
-                    <|> replace (clockwiseN 2 dir) (clockwiseN 1 dir) path
+                    <|> replace (clockwiseN 2 dir) (clockwise dir) path
                     <|> replace (counterClockwiseN 2 dir)
-                                (counterClockwiseN 1 dir)
+                                (counterClockwise dir)
                                 path
             newFurthest = max furthest $ length newPath
         in
