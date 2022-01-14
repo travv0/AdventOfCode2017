@@ -1,5 +1,10 @@
+*
+!/**/
+!*.*
 *fasl
 *~
 system-index.txt
 \#*
 .*
+*.hi
+*.o
